@@ -67,8 +67,9 @@ are obtained and further compared to a more realistic population distribution.
 
 ## Case Study
 
+To further illustrate the use of `populR` package, we present a case study which demonstrates the use of its methods.  
 A small part of the city of Mytilini, Lesvos, Greece was chosen as the case study
-(figure below).The study area consists of 9 city blocks (source) counting 911 
+(figure below). The study area consists of 9 city blocks (source) counting 911 
 residents and 179 buildings units (target) including floor number information.
 These data are included in `populR` package for further experimentation.
 
@@ -94,9 +95,9 @@ plot(target['geometry'], col = "#FD8D3C", add = T)
 ## Implementation
 
 In this section a demonstration of the `sf`, `areal` and `populR` packages takes place.
-First, the packages are attached to the script and next `populR` built-in data
-are loaded. Then, Areal Interpolation functions are executed for each one of the
-aforementioned packages.
+Initially, the packages are attached and next `populR` built-in data
+are loaded. Then, 'Areal Interpolation' functions are executed for each one of the
+aforementioned packages in order to compare the 3 aproaches.
 
 The ``st_interpolate_aw()`` function of the `sf` package takes:
 
