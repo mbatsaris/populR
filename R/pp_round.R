@@ -14,7 +14,6 @@
 #'
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
-#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data
@@ -37,21 +36,10 @@
 #'
 pp_round <- function(x, tpop, spop, sid) {
   #check arguments
-  if (missing(x)) {
-    usethis::ui_stop('x is required')
-  }
-
-  if (missing(tpop)) {
-    usethis::ui_stop('tpop is required')
-  }
-
-  if (missing(spop)) {
-    usethis::ui_stop('spop is required')
-  }
-
-  if (missing(sid)) {
-    usethis::ui_stop('sid is required')
-  }
+  rlang::check_required(x)
+  rlang::check_required(tpop)
+  rlang::check_required(spop)
+  rlang::check_required(sid)
 
   # check whether colnames exist
   spop <- rlang::quo_name(rlang::enquo(spop))
@@ -60,24 +48,24 @@ pp_round <- function(x, tpop, spop, sid) {
 
   # check whether parameters exist in the given target object
   if (!spop %in% colnames(x)) {
-    usethis::ui_stop('{spop} cannot be found')
+    cli::cli_abort('{spop} cannot be found')
   }
 
   if (!sid %in% colnames(x)) {
-    usethis::ui_stop('{sid} cannot be found')
+    cli::cli_abort('{sid} cannot be found')
   }
 
   if (!tpop %in% colnames(x)) {
-    usethis::ui_stop('{tpop} cannot be found')
+    cli::cli_abort('{tpop} cannot be found')
   }
 
   # check whether spop and tpop are numeric
   if (!is.numeric(x[, spop, drop = TRUE])) {
-    usethis::ui_stop('{spop} must be numeric')
+    cli::cli_abort('{spop} must be numeric')
   }
 
   if (!is.numeric(x[, tpop, drop = TRUE])) {
-    usethis::ui_stop('{tpop} must be numeric')
+    cli::cli_abort('{tpop} must be numeric')
   }
 
   x$newid <- 1:nrow(x)

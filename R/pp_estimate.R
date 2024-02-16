@@ -29,7 +29,6 @@
 #' @importFrom rlang enquo
 #' @importFrom sf st_crs
 #' @importFrom sf st_make_valid
-#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data
@@ -54,25 +53,11 @@
 #'
 pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NULL, point = FALSE, method) {
   # check arguments
-  if (missing(target)) {
-    usethis::ui_stop('target is required')
-  }
-
-  if (missing(source)) {
-    usethis::ui_stop('source is required')
-  }
-
-  if (missing(sid)) {
-    usethis::ui_stop('sid is required')
-  }
-
-  if (missing(spop)) {
-    usethis::ui_stop('spop is required')
-  }
-
-  if (missing(method)) {
-    usethis::ui_stop('method is required')
-  }
+  rlang::check_required(target)
+  rlang::check_required(source)
+  rlang::check_required(sid)
+  rlang::check_required(spop)
+  rlang::check_required(method)
 
   # enquote args where necessary
   sid <- rlang::quo_name(rlang::enquo(sid))
@@ -82,46 +67,39 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
   ancillary <- rlang::quo_name(rlang::enquo(ancillary))
 
   # check whether source and .target are of sf class
-  sc <- "sf" %in% class(source)
-  tc <- "sf" %in% class(target)
-
-  if (sc == FALSE) {
-    usethis::ui_stop("{source} must be an object of class sf")
+  if (!inherits(source, "sf")) {
+    cli::cli_abort("{.arg source} must be an object of class sf, not {.obj_type_friendly {source}}")
   }
 
-  if (tc == FALSE) {
-    usethis::ui_stop('{target} must be an object of class sf')
+  if (!inherits(target, "sf")) {
+    cli::cli_abort('{.arg target} must be an object of class sf, not {.obj_type_friendly {target}}.')
   }
 
   # check whether source and target share the same crs
   if (sf::st_crs(target) != sf::st_crs(source)) {
-    usethis::ui_stop('CRS mismatch')
+    cli::cli_abort('CRS mismatch.')
   }
 
   # check whether params exist in the given source object
   if (!sid %in% colnames(source)) {
-    usethis::ui_stop('{sid} cannot be found')
+    cli::cli_abort('{sid} cannot be found')
   }
 
   if (!spop %in% colnames(source)) {
-    usethis::ui_stop('{spop} cannot be found')
+    cli::cli_abort('{spop} cannot be found')
   }
 
   # check whether method is valid
-  m <- c('awi', 'vwi', 'bdi', 'fdi')
-
-  if (!method %in% m) {
-    usethis::ui_stop('{method} is not a valid method. Please choose between awi, vwi, bdi and fdi')
-  }
+  rlang::arg_match0(method, c('awi', 'vwi', 'bdi', 'fdi'))
 
   # check whether spop is numeric
   if (!is.numeric(source[, spop, drop = TRUE])) {
-    usethis::ui_stop('{spop} must be numeric')
+    cli::cli_abort('{spop} must be numeric')
   }
 
   # check whether point is logical
   if (!is.logical(point)) {
-    usethis::ui_stop('point must be logical (T|TRUE, F|FALSE')
+    cli::cli_abort('point must be logical (T|TRUE, F|FALSE')
   }
 
   # check whether sid and pop already exists in both target and source features
@@ -141,30 +119,30 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     out <- pp_awi(target, source = source, sid = sid, spop = spop,
                   point = point)
   } else if (method == 'vwi') {
-    if (volume == 'NULL') {
-      usethis::ui_stop('volume is required for vwi')
+    if (is.null(volume)) {
+      cli::cli_abort('volume is required for vwi')
     }
 
     if (!volume %in% colnames(target)) {
-      usethis::ui_stop('{volume} cannot be found')
+      cli::cli_abort('{volume} cannot be found')
     }
 
     if (!is.numeric(target[, volume, drop = TRUE])) {
-      usethis::ui_stop('{volume} must be numeric')
+      cli::cli_abort('{volume} must be numeric')
     }
     out <- pp_vwi(target, source = source, sid = sid, spop = spop,
                   volume = volume, point = point)
-  } else if (method == 'bdi') {
+  } else if (is.null(method)) {
     if (ancillary == 'NULL') {
-      usethis::ui_stop('ancillary is required for bdi')
+      cli::cli_abort('ancillary is required for bdi')
     }
 
     if (!ancillary %in% colnames(target)) {
-      usethis::ui_stop('{ancillary} cannot be found')
+      cli::cli_abort('{ancillary} cannot be found')
     }
 
     if (!is.numeric(target[, ancillary, drop = TRUE])) {
-      usethis::ui_stop('{ancillary} must be numeric')
+      cli::cli_abort('{ancillary} must be numeric')
     }
     if (volume == 'NULL') {
       out <- pp_bdi(target, source = source, sid = sid, spop = spop,
@@ -172,35 +150,35 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     } else {
 
       if (!volume %in% colnames(target)) {
-        usethis::ui_stop('{volume} cannot be found')
+        cli::cli_abort('{volume} cannot be found')
       }
 
       if (!is.numeric(target[, volume, drop = TRUE])) {
-        usethis::ui_stop('{volume} must be numeric')
+        cli::cli_abort('{volume} must be numeric')
       }
       out <- pp_bdi(target, source = source, sid = sid, spop = spop,
                     volume = volume, point = point, ancillary = ancillary)
     }
 
   } else if (method == 'fdi') {
-    if (ancillary == 'NULL') {
-      usethis::ui_stop('ancillary is required for fdi')
+    if (is.null(ancillary)) {
+      cli::cli_abort('ancillary is required for fdi')
     }
 
     if (!ancillary %in% colnames(target)) {
-      usethis::ui_stop('{ancillary} cannot be found')
+      cli::cli_abort('{ancillary} cannot be found')
     }
 
     if (!is.numeric(target[, ancillary, drop = TRUE])) {
-      usethis::ui_stop('{ancillary} must be numeric')
+      cli::cli_abort('{ancillary} must be numeric')
     }
 
     if (!volume %in% colnames(target)) {
-      usethis::ui_stop('{volume} cannot be found')
+      cli::cli_abort('{volume} cannot be found')
     }
 
     if (!is.numeric(target[, volume, drop = TRUE])) {
-      usethis::ui_stop('{volume} must be numeric')
+      cli::cli_abort('{volume} must be numeric')
     }
 
     out <- pp_fdi(target, source = source, sid = sid, spop = spop,

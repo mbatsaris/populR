@@ -17,7 +17,7 @@ test_that("argument errors", {
   # misspelled object
   expect_error(
     pp_round(tpop = pp_est, spop = pop, sid = sid),
-    "x is required"
+    "`x` is absent"
   )
 
   # missplelled sid

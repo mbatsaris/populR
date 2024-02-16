@@ -19,12 +19,12 @@ Imports:
     sf,
     rlang,
     Metrics,
-    usethis,
+    cli,
     osmdata,
     dplyr,
     units
 Depends: R (>= 3.3.0)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Suggests: 
     rmarkdown,
     microbenchmark,

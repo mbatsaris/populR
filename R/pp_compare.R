@@ -19,7 +19,6 @@
 #' @importFrom rlang enquo
 #' @importFrom Metrics rmse
 #' @importFrom Metrics mae
-#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data
@@ -44,42 +43,31 @@
 #'
 pp_compare <- function(x, estimated, actual, title) {
   # check arguments
-  if (missing(x)) {
-    usethis::ui_stop('x is required')
-  }
-
-  if (missing(actual)) {
-    usethis::ui_stop('actual is required')
-  }
-
-  if (missing(estimated)) {
-    usethis::ui_stop('estimated is required')
-  }
-
-  if (missing(title)) {
-    usethis::ui_stop('title is required')
-  }
+  rlang::check_required(x)
+  rlang::check_required(actual)
+  rlang::check_required(estimated)
+  rlang::check_required(title)
 
   actual <- rlang::quo_name(rlang::enquo(actual))
   estimated <- rlang::quo_name(rlang::enquo(estimated))
 
   # check if exists
   if (!estimated %in% colnames(x)) {
-    usethis::ui_stop('{estimated} cannot be found')
+    cli::cli_abort('{estimated} cannot be found in the columns of {.arg x}.')
   }
 
   if (!actual %in% colnames(x)) {
-    usethis::ui_stop('{actual} cannot be found')
+    cli::cli_abort('{actual} cannot be found in the columns of {.arg x}.')
   }
 
   # check whether args are numeric
   if (!is.numeric(x[, actual, drop = TRUE])) {
-    usethis::ui_stop('{actual} must be numeric')
+    cli::cli_abort('{actual} must be numeric.')
   }
 
   # check whether spop is numeric
   if (!is.numeric(x[, estimated, drop = TRUE])) {
-    usethis::ui_stop('{estimated} must be numeric')
+    cli::cli_abort('{estimated} must be numeric.')
   }
 
   # calculate rmse, calculate correlation coefficient and create linear regression model

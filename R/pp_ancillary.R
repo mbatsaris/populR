@@ -6,7 +6,6 @@
 #'     float ancillary information
 #' @param key OSM feature keys or values available in x
 #'
-#' @importFrom usethis ui_stop
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
 #'
@@ -29,16 +28,11 @@
 #' }
 #'
 pp_ancillary <- function(x, volume = NULL, key) {
-  if (missing(x)) {
-    usethis::ui_stop('x is required')
-  }
-  if (missing(key)) {
-    usethis::ui_stop('key is required')
-  }
+  rlang::check_required(x)
+  rlang::check_required(key)
 
-  xc <- "sf" %in% class(x)
-  if (xc == FALSE) {
-    usethis::ui_stop('{x} must be an object of class sf')
+  if (!inherits(x, "sf")) {
+    cli::cli_abort('{.arg x} must be an object of class sf, not {.obj_type_friendly {x}.')
   }
 
   volume <- rlang::quo_name(rlang::enquo(volume))
@@ -47,7 +41,7 @@ pp_ancillary <- function(x, volume = NULL, key) {
   for (i in 1:length(key)) {
     k <- key[i]
     if (!k %in% colnames(x)) {
-      usethis::ui_stop('{k} cannot be found')
+      cli::cli_abort('{k} cannot be found in the columns of {.arg x}.')
     }
   }
 
@@ -59,7 +53,7 @@ pp_ancillary <- function(x, volume = NULL, key) {
 
   if (volume != 'NULL') {
     if (!volume %in% colnames(x)) {
-      usethis::ui_stop('{volume} cannot be found')
+      cli::cli_abort('{volume} cannot be found in the columns of {.arg x}.')
     }
     x$flt_day <- x[, key, drop = TRUE]/x[, volume, drop = TRUE]
     x$float <- round(1 - x$flt_day, 3)
