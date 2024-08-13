@@ -8,24 +8,18 @@ vwi <- suppressWarnings(pp_estimate(trg, src, sid = sid, spop = pop, volume = fl
 
 test_that("argument errors", {
   # test on missing argument
-  expect_error(
+  expect_snapshot(error = TRUE, {
     pp_compare(x = awi, estimated = pp_est,
-            title ='awi'),
-    "actual is required"
-  )
+               title ='awi')
+    pp_compare(estimated = pp_est, actual = rf,
+               title ='awi')
+  })
 
   # test on misspelled x
   expect_error(
     pp_compare(x = awis, estimated = pp_est, actual = rf,
             title ='awi'),
     "object 'awis' not found"
-  )
-
-  #test on missing x
-  expect_error(
-    pp_compare(estimated = pp_est, actual = rf,
-            title ='awi'),
-    "x is required"
   )
 
 })

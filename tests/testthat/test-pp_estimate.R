@@ -3,29 +3,14 @@ data('src', package = "populR")
 data('trg', package = "populR")
 
 test_that("argument errors", {
-  # test on missing method
-  expect_error(
-    suppressWarnings(pp_estimate(target = trg, source = src, sid = sid, spop = pop)),
-    "method is required"
-  )
+  # test on missing arguments
+  expect_snapshot(error = TRUE, {
+    pp_estimate(target = trg, source = src, sid = sid, spop = pop)
+    pp_estimate(target = trg, source = src, sid = sid, method = awi)
+    pp_estimate(source = src, sid = sid, method = awi)
+    pp_estimate(target = trg, sid = sid, spop = pop, method = awi)
+  })
 
-  # test on missing spop
-  expect_error(
-    suppressWarnings(pp_estimate(target = trg, source = src, sid = sid, method = awi)),
-    "spop is required"
-  )
-
-  # test on missing target
-  expect_error(
-    suppressWarnings(pp_estimate(source = src, sid = sid, method = awi)),
-    "target is required"
-  )
-
-  # test on missing source
-  expect_error(
-    suppressWarnings(pp_estimate(target = trg, sid = sid, spop = pop, method = awi)),
-    "source is required"
-  )
 
   # misspelled target object
   expect_error(
